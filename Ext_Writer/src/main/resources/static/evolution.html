@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" href="css/theme-classic-all.css" />
+<script type="text/javascript" src="js/ext-all.js"></script>
+<script type="text/javascript">
+var WIDTH = 256;
+
+function getColumns(columnIds, columnLabels) {
+	var columns = new Array();
+	for (var i = 0; i < columnIds.length; i++) {
+		var column = {};
+		column['dataIndex'] = columnIds[i];
+		column['text'] = columnLabels[i];
+		column['width'] = WIDTH;
+		columns.push(column);
+	}
+	return columns;
+}
+
+function printOutput(id, columnIds, columnLabels, dataInput) {
+	if (find(id) != null) {
+		remove(id);
+	}
+	Ext.define('Output', {
+	    extend : 'Ext.data.Model',
+	    fields : columnIds
+	});
+	var outputStore = Ext.create('Ext.data.Store', {
+	    model : 'Output',
+	    data : dataInput
+	});
+	Ext.create('Ext.grid.Panel', {
+		itemId : id,
+		renderTo : id,
+	    store : outputStore,
+	    title : 'Application Users',
+	    columns : getColumns(columnIds, columnLabels)
+	});
+}
+
+function find(id) {
+	return Ext.ComponentQuery.query('[itemId=' + id + ']')[0];
+}
+
+function remove(id) {
+	find(id).destroy();
+}
+
+function send() {
+	Ext.Ajax.request({
+		url : 'post',
+		jsonData : {name : 'Chen'},
+		success : function(responseJson) {
+			var responseJson = responseJson.responseText;
+			alert(responseJson);
+			// Print Output
+	    	printOutput('ouput', [ 'name', 'email', 'phone' ], [ 'Name', 'Email', 'Phone' ], [
+	            { name: 'Lisa', email: 'lisa@simpsons.com', phone: '555-111-1224' },
+	            { name: 'Bart', email: 'bart@simpsons.com', phone: '555-222-1234' },
+	            { name: 'Homer', email: 'homer@simpsons.com', phone: '555-222-1244' },
+	            { name: 'Marge', email: 'marge@simpsons.com', phone: '555-222-1254' }
+	        ]);
+		},
+		failure : function() {
+			alert('Failure');
+		}
+	});
+}
+
+Ext.onReady(function() {
+	var button = Ext.create('Ext.Button', {
+	    text : 'Submit',
+	    renderTo : 'submit',
+	    handler : function() {
+	    	send();
+	    }
+	});
+});
+
+</script>
+</head>
+<body>
+<div id="submit"></div>
+<div id="ouput"></div>
+</body>
+</html>
